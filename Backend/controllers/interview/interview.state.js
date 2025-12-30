@@ -15,20 +15,20 @@ export function createInterviewSession(resumeJSON) {
   return {
     state: InterviewState.START,
 
-    // indexes to control deterministic progression
+    // 🔥 STORE RESUME HERE
+    resume: resumeJSON,
+
     skillIndex: 0,
 
-    // difficulty controlled by CODE, not LLM
     difficulty:
       resumeJSON.experience_level === "fresher"
         ? "basic"
         : "intermediate",
 
-    // counters
     questionCount: 0,
     maxQuestions: 6,
-
-    // memory
-    lastQuestion: null
+    lastQuestion: null,
+    history: []
   };
 }
+

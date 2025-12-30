@@ -4,9 +4,7 @@ import {
 } from "./interview.prompts.js";
 import { validateQuestion } from "./interview.validate.js";
 import { InterviewState } from "./interview.state.js";
-import { GoogleGenAI } from "@google/genai";
-const ai=new GoogleGenAI({
-    apiKey:process.env.GOOGLE_API_KEY});
+
 export async function generateValidatedQuestion(ai, prompt, fallback) {
   for (let i = 0; i < 2; i++) {
     const res = await ai.models.generateContent({

@@ -60,7 +60,7 @@ Do NOT guess.
     });
     
 const validJSON=extractJSON(response.text);
-req.session.resumeProfile = validJSON;
+req.session.resumeProfile= validJSON;
     return res.status(200).json({
       success: true,
       resumeJSON: validJSON
