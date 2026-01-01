@@ -1,5 +1,6 @@
 import express from 'express'; 
 import multer from 'multer';
+import {requireAuth} from '../Middleware/Authmiddleware.js';
 import {analyzeResume,handleResume} from '../controllers/interview/interview.extract.js';
 import {startInterview,handleAnswer} from '../controllers/interview/interview.controller.js';
 const router=express.Router();
