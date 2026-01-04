@@ -20,7 +20,7 @@ export async function generateValidatedQuestion(ai, prompt, fallback) {
 
 export async function evaluateAnswer(ai, question, answer) {
   const prompt = `
-Evaluate the candidate answer.
+Evaluate the candidate answer for a technical interview.
 
 Question:
 ${question}
@@ -28,16 +28,30 @@ ${question}
 Answer:
 ${answer}
 
-Return ONLY one word:
-weak | average | strong
+Return a valid JSON object with the following structure:
+{
+  "score": <number 1-10>,
+  "quality": "weak" | "average" | "strong",
+  "strengths": ["point 1", "point 2"],
+  "weaknesses": ["point 1", "point 2"]
+}
 `;
 
   const res = await ai.models.generateContent({
     model: "gemini-2.5-flash",
-    contents: prompt
+    contents: prompt,
+    generationConfig: {
+      responseMimeType: "application/json"
+    }
   });
 
-  return res.text.trim().toLowerCase();
+  try {
+    return JSON.parse(res.text.trim());
+  } catch (e) {
+    console.error("JSON Parse Error in Evaluate:", e);
+    // Fallback
+    return { score: 5, quality: "average", strengths: [], weaknesses: [] };
+  }
 }
 
 export function adjustDifficulty(current, quality) {

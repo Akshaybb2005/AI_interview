@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
-import{ useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setUser } from "../Redux/Slice.js";
+import { useNavigate } from "react-router-dom";
 const Register = () => {
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -25,7 +27,7 @@ const Register = () => {
     setError(false);
 
     try {
-      const response=await axios.post(
+      const response = await axios.post(
         "http://localhost:3000/auth/register",
         form,
         { withCredentials: true }
@@ -34,6 +36,7 @@ const Register = () => {
       setMessage("🎉 Registration successful");
       dispatch(setUser(response.data.user));
       setForm({ name: "", email: "", password: "" });
+      navigate("/main")
     } catch (err) {
       setError(true);
       setMessage(err.response?.data?.message || "Registration failed");
@@ -44,7 +47,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900">
-      
+
       {/* Left Panel (Branding) */}
       <div className="hidden lg:flex flex-col justify-center px-16 text-white">
         <h1 className="text-5xl font-extrabold leading-tight">
@@ -145,9 +148,8 @@ const Register = () => {
           {/* Message */}
           {message && (
             <p
-              className={`mt-4 text-center text-sm font-medium ${
-                error ? "text-red-600" : "text-green-600"
-              }`}
+              className={`mt-4 text-center text-sm font-medium ${error ? "text-red-600" : "text-green-600"
+                }`}
             >
               {message}
             </p>

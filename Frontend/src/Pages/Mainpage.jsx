@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Axios from "../AxiosInstance.js";
+import { useDispatch } from "react-redux";
+import { clearUser } from "../Redux/Slice.js";
 const MainPage = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showUpload, setShowUpload] = useState(false);
   const [resume, setResume] = useState(null);
    
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const res=await Axios.post("/auth/logout");
+    dispatch(clearUser());
+    console.log(res.data);
     navigate("/login");
   };
 const uploadResume = async () => {

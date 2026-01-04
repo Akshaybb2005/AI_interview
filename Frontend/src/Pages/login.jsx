@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import { useDispatch } from "react-redux";
+import { setUser } from "../Redux/Slice.js";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [form, setForm] = useState({
     email: "",
     password: ""
@@ -22,7 +26,7 @@ const Login = () => {
     setError(false);
 
     try {
-      const response=await axios.post(
+      const response = await axios.post(
         "http://localhost:3000/auth/login",
         form,
         { withCredentials: true }
@@ -30,7 +34,7 @@ const Login = () => {
 
       setMessage("✅ Login successful");
       dispatch(setUser(response.data.user));
-      // later → navigate("/dashboard")
+      navigate("/interview");
     } catch (err) {
       setError(true);
       setMessage(err.response?.data?.message || "Login failed");
@@ -41,7 +45,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 px-4">
-      
+
       {/* Card */}
       <div className="w-full max-w-md bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8">
 
@@ -106,9 +110,8 @@ const Login = () => {
         {/* Message */}
         {message && (
           <p
-            className={`mt-4 text-center text-sm font-medium ${
-              error ? "text-red-600" : "text-green-600"
-            }`}
+            className={`mt-4 text-center text-sm font-medium ${error ? "text-red-600" : "text-green-600"
+              }`}
           >
             {message}
           </p>
@@ -117,7 +120,8 @@ const Login = () => {
         {/* Footer */}
         <div className="mt-6 text-center text-sm text-gray-500">
           New candidate?{" "}
-          <span className="text-indigo-600 hover:underline cursor-pointer">
+          <span className={"text-indigo-600 hover:underline cursor-pointer"}
+            onClick={() => navigate("/register")}>
             Create an account
           </span>
         </div>

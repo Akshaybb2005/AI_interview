@@ -50,9 +50,20 @@ export const handleAnswer = (io, ai) => {
       if (session.state === InterviewState.START) {
         session.state = InterviewState.SKILL;
       } else {
-        const quality = await evaluateAnswer(ai, session.lastQuestion, answer);
-        currentQuality = quality; // Keep for prompt
-        session.difficulty = adjustDifficulty(session.difficulty, quality);
+        const result = await evaluateAnswer(ai, session.lastQuestion, answer);
+        currentQuality = result.quality;
+
+        // Update history with score and feedback
+        if (session.history.length > 0) {
+          const lastEntry = session.history[session.history.length - 1];
+          lastEntry.score = result.score;
+          lastEntry.feedback = {
+            strengths: result.strengths,
+            weaknesses: result.weaknesses
+          };
+        }
+
+        session.difficulty = adjustDifficulty(session.difficulty, currentQuality);
 
         // Toggle Logic: SKILL -> FOLLOW_UP -> SKILL
         if (session.state === InterviewState.SKILL) {
@@ -64,11 +75,24 @@ export const handleAnswer = (io, ai) => {
       }
 
       // 3. Check Completion
-      // Note: We might want fewer rounds if we do follow-ups. 
-      // Let's cap total Interactions or verify session.skillIndex
       if (session.skillIndex >= session.resume.skills.length || session.questionCount >= session.maxQuestions) {
+
+        // Calculate Aggregates
+        const scoredAnswers = session.history.filter(h => h.score !== undefined);
+        const totalScore = scoredAnswers.reduce((acc, curr) => acc + curr.score, 0);
+        const avgScore = scoredAnswers.length ? Math.round((totalScore / scoredAnswers.length) * 10) : 0; // percentage
+
+        const allStrengths = scoredAnswers.flatMap(h => h.feedback?.strengths || []);
+        const allWeaknesses = scoredAnswers.flatMap(h => h.feedback?.weaknesses || []);
+
+        const results = {
+          averageScore: avgScore, // 0-100 scale ideally, or keep 1-10? Dashboard expects %, so * 10
+          strengths: [...new Set(allStrengths)].slice(0, 5), // Top 5 unique
+          weaknesses: [...new Set(allWeaknesses)].slice(0, 5)
+        };
+
         interviews.delete(interviewId);
-        return socket.emit("interview-complete");
+        return socket.emit("interview-complete", results);
       }
       session.questionCount++;
 

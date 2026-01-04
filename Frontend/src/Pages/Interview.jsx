@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Axios from "../AxiosInstance.js";
 import { io } from "socket.io-client";
 
@@ -8,6 +9,7 @@ const socket = io("http://localhost:3000", {
 });
 
 const Interview = () => {
+  const navigate = useNavigate();
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -165,10 +167,11 @@ const Interview = () => {
       transcriptRef.current = "";
     });
 
-    socket.on("interview-complete", () => {
+    socket.on("interview-complete", (results) => {
       alert("Interview completed!");
       setStarted(false);
       stopCamera();
+      navigate("/dashboard", { state: { results } });
     });
 
     return () => {
@@ -278,8 +281,8 @@ const Interview = () => {
                 <button
                   onClick={micOn ? stopListening : startListening}
                   className={`col-span-2 py-6 rounded-2xl font-bold text-xl transition-all shadow-lg flex items-center justify-center gap-2 ${micOn
-                      ? "bg-red-500 hover:bg-red-600 text-white shadow-red-500/30 animate-pulse"
-                      : "bg-white text-black hover:bg-gray-100"
+                    ? "bg-red-500 hover:bg-red-600 text-white shadow-red-500/30 animate-pulse"
+                    : "bg-white text-black hover:bg-gray-100"
                     }`}
                 >
                   {micOn ? "Tap to Process" : "Tap to Speak"}
@@ -288,8 +291,8 @@ const Interview = () => {
                 <button
                   onClick={camOn ? stopCamera : startCamera}
                   className={`py-3 rounded-xl font-medium text-sm border transition-all ${camOn
-                      ? "border-red-500/50 text-red-400 hover:bg-red-500/10"
-                      : "border-white/10 text-gray-400 hover:bg-white/5"
+                    ? "border-red-500/50 text-red-400 hover:bg-red-500/10"
+                    : "border-white/10 text-gray-400 hover:bg-white/5"
                     }`}
                 >
                   {camOn ? "Stop Camera" : "Start Camera"}

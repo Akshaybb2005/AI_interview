@@ -1,16 +1,18 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
+dotenv.config();
+import cors from "cors";
 import session from "express-session";
 import http from "http";
 import { Server } from "socket.io";
-
+import cookie from "cookie-parser";
 import { GoogleGenAI } from "@google/genai";
 import { init, init_Chathistory } from "./services/pdf.js";
 import authRoutes from "./routes/Authroutes.js";
 import interviewRoutes from "./routes/InterviewRoutes.js";
 import { handleAnswer } from "./controllers/interview/interview.controller.js";
-dotenv.config();
+import connectDB from "./models/db.js";
+
 
 const app = express();
 const port = 3000;
@@ -28,7 +30,7 @@ app.use(
     credentials: true
   })
 );
-
+app.use(cookie());
 /* ================= BODY PARSER ================= */
 app.use(express.json());
 
@@ -81,6 +83,7 @@ io.on("connection", (socket) => {
 
 /* ================= START SERVER (ONLY ONCE) ================= */
 const serverstart = async () => {
+  await connectDB();
   await init();
   await init_Chathistory();
 

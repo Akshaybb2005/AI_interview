@@ -1,6 +1,15 @@
 import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const results = state?.results || {
+    averageScore: 0,
+    strengths: ["No data available"],
+    weaknesses: ["No data available"]
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black text-white p-6">
 
@@ -13,28 +22,18 @@ const Dashboard = () => {
       </div>
 
       {/* ================= SCORE CARDS ================= */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-
-        <ScoreCard title="Overall Score" value="78%" color="indigo" />
-        <ScoreCard title="Communication" value="82%" color="green" />
-        <ScoreCard title="Technical Depth" value="71%" color="yellow" />
-        <ScoreCard title="Confidence" value="75%" color="blue" />
-
+      <div className="flex justify-center mb-10">
+        <div className="w-full max-w-sm">
+          <ScoreCard title="Overall Score" value={`${results.averageScore}%`} color="indigo" />
+        </div>
       </div>
 
       {/* ================= MAIN GRID ================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8">
 
         {/* ===== SKILL PERFORMANCE ===== */}
-        <div className="lg:col-span-2 bg-gray-900/70 border border-white/10 rounded-2xl p-6">
-          <h2 className="text-xl font-semibold mb-6">Skill-wise Performance</h2>
-
-          <Bar label="JavaScript" value={80} />
-          <Bar label="React" value={72} />
-          <Bar label="DSA" value={65} />
-          <Bar label="System Design" value={58} />
-          <Bar label="Communication" value={82} />
-        </div>
+        {/* ===== SKILL PERFORMANCE (Placeholder / Future Implementation) ===== */}
+        {/* <div className="lg:col-span-2 bg-gray-900/70 border border-white/10 rounded-2xl p-6">...</div> */}
 
         {/* ===== STRENGTH & WEAKNESS ===== */}
         <div className="bg-gray-900/70 border border-white/10 rounded-2xl p-6">
@@ -43,18 +42,18 @@ const Dashboard = () => {
           <div className="mb-6">
             <h3 className="text-green-400 mb-2 font-medium">Strengths</h3>
             <ul className="text-sm space-y-2 text-gray-300">
-              <li>✔ Clear explanation of concepts</li>
-              <li>✔ Strong React fundamentals</li>
-              <li>✔ Good API knowledge</li>
+              {results.strengths.map((s, i) => (
+                <li key={i}>✔ {s}</li>
+              ))}
             </ul>
           </div>
 
           <div>
             <h3 className="text-red-400 mb-2 font-medium">Weaknesses</h3>
             <ul className="text-sm space-y-2 text-gray-300">
-              <li>✖ System Design depth</li>
-              <li>✖ Edge case handling</li>
-              <li>✖ Time complexity explanation</li>
+              {results.weaknesses.map((w, i) => (
+                <li key={i}>✖ {w}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -85,7 +84,9 @@ const Dashboard = () => {
 
       {/* ================= FOOTER ACTION ================= */}
       <div className="mt-12 flex justify-center">
-        <button className="bg-indigo-600 hover:bg-indigo-700 px-8 py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition">
+        <button
+          onClick={() => navigate("/")}
+          className="bg-indigo-600 hover:bg-indigo-700 px-8 py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition">
           Start Another Interview
         </button>
       </div>
