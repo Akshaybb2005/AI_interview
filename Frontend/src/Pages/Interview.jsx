@@ -2,13 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Axios from "../AxiosInstance.js";
 import { io } from "socket.io-client";
-
+import { useDispatch } from "react-redux";
+import { setResults } from "../Redux/markSlics.js";
 /* 🔥 CREATE SOCKET ONCE (OUTSIDE COMPONENT) */
 const socket = io("http://localhost:3000", {
   withCredentials: true,
 });
 
 const Interview = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -171,7 +173,12 @@ const Interview = () => {
       alert("Interview completed!");
       setStarted(false);
       stopCamera();
-      navigate("/dashboard", { state: { results } });
+      dispatch(setResults(
+        {strengths: results.strengths,
+        weaknesses: results.weaknesses,
+        score: results.averageScore}
+      ));
+      navigate("/dashboard");
     });
 
     return () => {

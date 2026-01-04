@@ -1,57 +1,91 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { clearUser } from "../Redux/Slice";
+import { resetResults } from "../Redux/markSlics";
 
 const Dashboard = () => {
-  const { state } = useLocation();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const results = state?.results || {
-    averageScore: 0,
-    strengths: ["No data available"],
-    weaknesses: ["No data available"]
+
+  // ✅ SAFE SELECTOR
+  const marks = useSelector((state) => state.marks || {
+    score: 0,
+    strengths: [],
+    weaknesses: [],
+  });
+
+  const { score, strengths, weaknesses } = marks;
+
+  const averageScore = score || 0;
+
+  const finalStrengths =
+    strengths.length > 0 ? strengths : ["No data available"];
+
+  const finalWeaknesses =
+    weaknesses.length > 0 ? weaknesses : ["No data available"];
+
+  const logout = () => {
+    dispatch(clearUser());
+    dispatch(resetResults()); // ✅ IMPORTANT
+    navigate("/login");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black text-white p-6 relative">
 
-      {/* ================= HEADER ================= */}
+      {/* LOGOUT */}
+      <button
+        onClick={logout}
+        className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm shadow-md"
+      >
+        Logout
+      </button>
+
+      {/* HEADER */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Interview Performance Dashboard</h1>
+        <h1 className="text-3xl font-bold">
+          Interview Performance Dashboard
+        </h1>
         <p className="text-gray-400 mt-1">
           AI-based evaluation of your mock interview
         </p>
       </div>
 
-      {/* ================= SCORE CARDS ================= */}
+      {/* SCORE */}
       <div className="flex justify-center mb-10">
         <div className="w-full max-w-sm">
-          <ScoreCard title="Overall Score" value={`${results.averageScore}%`} color="indigo" />
+          <ScoreCard
+            title="Overall Score"
+            value={`${averageScore}%`}
+          />
         </div>
       </div>
 
-      {/* ================= MAIN GRID ================= */}
+      {/* INSIGHTS */}
       <div className="grid grid-cols-1 gap-8">
-
-        {/* ===== SKILL PERFORMANCE ===== */}
-        {/* ===== SKILL PERFORMANCE (Placeholder / Future Implementation) ===== */}
-        {/* <div className="lg:col-span-2 bg-gray-900/70 border border-white/10 rounded-2xl p-6">...</div> */}
-
-        {/* ===== STRENGTH & WEAKNESS ===== */}
         <div className="bg-gray-900/70 border border-white/10 rounded-2xl p-6">
           <h2 className="text-xl font-semibold mb-4">Insights</h2>
 
+          {/* Strengths */}
           <div className="mb-6">
-            <h3 className="text-green-400 mb-2 font-medium">Strengths</h3>
+            <h3 className="text-green-400 mb-2 font-medium">
+              Strengths
+            </h3>
             <ul className="text-sm space-y-2 text-gray-300">
-              {results.strengths.map((s, i) => (
+              {finalStrengths.map((s, i) => (
                 <li key={i}>✔ {s}</li>
               ))}
             </ul>
           </div>
 
+          {/* Weaknesses */}
           <div>
-            <h3 className="text-red-400 mb-2 font-medium">Weaknesses</h3>
+            <h3 className="text-red-400 mb-2 font-medium">
+              Weaknesses
+            </h3>
             <ul className="text-sm space-y-2 text-gray-300">
-              {results.weaknesses.map((w, i) => (
+              {finalWeaknesses.map((w, i) => (
                 <li key={i}>✖ {w}</li>
               ))}
             </ul>
@@ -59,34 +93,15 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* ================= SUGGESTIONS ================= */}
-      <div className="mt-10 bg-gray-900/70 border border-white/10 rounded-2xl p-6">
-        <h2 className="text-xl font-semibold mb-4">Recommended Topics to Improve</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            "System Design Basics",
-            "Big-O Analysis",
-            "Database Indexing",
-            "Scalability Patterns",
-            "Error Handling Strategies",
-            "Behavioral STAR Method",
-          ].map((topic, i) => (
-            <div
-              key={i}
-              className="bg-gray-800/80 border border-white/10 rounded-xl px-4 py-3 text-sm hover:bg-indigo-600/20 transition"
-            >
-              📘 {topic}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ================= FOOTER ACTION ================= */}
+      {/* FOOTER */}
       <div className="mt-12 flex justify-center">
         <button
-          onClick={() => navigate("/")}
-          className="bg-indigo-600 hover:bg-indigo-700 px-8 py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition">
+          onClick={() => {
+            dispatch(resetResults());
+            navigate("/");
+          }}
+          className="bg-indigo-600 hover:bg-indigo-700 px-8 py-3 rounded-xl shadow-lg"
+        >
           Start Another Interview
         </button>
       </div>
@@ -94,27 +109,11 @@ const Dashboard = () => {
   );
 };
 
-/* ================= COMPONENTS ================= */
-
-const ScoreCard = ({ title, value, color }) => (
+/* ================= SCORE CARD ================= */
+const ScoreCard = ({ title, value }) => (
   <div className="bg-gray-900/70 border border-white/10 rounded-2xl p-6 text-center">
     <p className="text-gray-400 text-sm mb-2">{title}</p>
-    <p className={`text-4xl font-bold text-${color}-400`}>{value}</p>
-  </div>
-);
-
-const Bar = ({ label, value }) => (
-  <div className="mb-5">
-    <div className="flex justify-between text-sm mb-1">
-      <span>{label}</span>
-      <span className="text-gray-400">{value}%</span>
-    </div>
-    <div className="w-full h-3 bg-gray-800 rounded-full overflow-hidden">
-      <div
-        className="h-full bg-indigo-600 rounded-full transition-all"
-        style={{ width: `${value}%` }}
-      />
-    </div>
+    <p className="text-4xl font-bold text-indigo-400">{value}</p>
   </div>
 );
 

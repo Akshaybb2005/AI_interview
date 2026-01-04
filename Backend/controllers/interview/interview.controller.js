@@ -90,7 +90,7 @@ export const handleAnswer = (io, ai) => {
           strengths: [...new Set(allStrengths)].slice(0, 5), // Top 5 unique
           weaknesses: [...new Set(allWeaknesses)].slice(0, 5)
         };
-
+        console.log("Interview complete. Results:", results);
         interviews.delete(interviewId);
         return socket.emit("interview-complete", results);
       }

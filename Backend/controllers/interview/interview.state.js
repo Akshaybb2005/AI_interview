@@ -26,7 +26,7 @@ export function createInterviewSession(resumeJSON) {
         : "intermediate",
 
     questionCount: 0,
-    maxQuestions: 4,
+    maxQuestions: 1,
     lastQuestion: null,
     history: []
   };

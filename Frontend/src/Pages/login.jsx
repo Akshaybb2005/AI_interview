@@ -34,7 +34,7 @@ const Login = () => {
 
       setMessage("✅ Login successful");
       dispatch(setUser(response.data.user));
-      navigate("/interview");
+      navigate("/main");
     } catch (err) {
       setError(true);
       setMessage(err.response?.data?.message || "Login failed");
